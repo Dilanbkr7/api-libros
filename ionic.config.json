@@ -1,0 +1,7 @@
+{
+  "name": "api-libros",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}
