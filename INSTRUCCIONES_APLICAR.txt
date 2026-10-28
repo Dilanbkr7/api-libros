@@ -1,0 +1,26 @@
+API EXPLORER - COMPLEMENTO PARA TU REPOSITORIO api-libros
+
+Esta carpeta contiene los archivos creados o modificados para terminar R1-R7.
+No es un proyecto Ionic nuevo: conserva tu base original del repositorio.
+
+1) Abre en Windows tu carpeta original api-libros.
+   Si no la tienes: git clone https://github.com/Dilanbkr7/api-libros.git
+2) Copia el contenido de ESTA CARPETA dentro de la carpeta original.
+   Acepta REEMPLAZAR los archivos que coincidan.
+   IMPORTANTE: NO borres package.json, package-lock.json, angular.json ni src/main.ts.
+3) Abre CMD en tu carpeta api-libros:
+      npm ci
+      ionic serve
+4) Para Android (si todavia no tienes carpeta android):
+      npm install @capacitor/android@^8.5.3
+      ionic build
+      npx cap add android
+      npx cap sync android
+      npx cap open android
+5) Si android ya existe, no repitas cap add android.
+6) Para entrega:
+      git add .
+      git commit -m "API Explorer R1-R7"
+      git push origin main
+
+Lee README.md y docs/EVIDENCIAS.md.

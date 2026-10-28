@@ -1,79 +1,102 @@
-
 <ion-header>
   <ion-toolbar color="primary">
-    <ion-title>Explorador de libros</ion-title>
+    <ion-title>API Explorer · Libros</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="ion-padding">
-  <h2>Descubre libros</h2>
-  <p>Información obtenida de Open Library.</p>
+  <div class="intro">
+    <h1>Explora Open Library</h1>
+    <p>Busca libros reales, descubre detalles y guarda tus favoritos.</p>
+  </div>
 
   <ion-searchbar
     [value]="searchText"
+    [debounce]="350"
     (ionInput)="onSearchInput($event)"
-    placeholder="Buscar libros por título o tema"
-    (keyup.enter)="searchBooks()">
+    placeholder="Título, autor o tema"
+    aria-label="Buscar libros">
   </ion-searchbar>
 
-  <ion-button expand="block" (click)="searchBooks()" [disabled]="loading">
-    Buscar
-  </ion-button>
+  <div class="filters">
+    <ion-button size="small" [fill]="showFavoritesOnly ? 'outline' : 'solid'" (click)="setFavoritesOnly(false)">
+      Catálogo
+    </ion-button>
+    <ion-button size="small" [fill]="showFavoritesOnly ? 'solid' : 'outline'" (click)="setFavoritesOnly(true)">
+      Favoritos ({{ favoritesCount }})
+    </ion-button>
+  </div>
 
-  @if (loading) {
-    <div class="loading">
-      <ion-spinner name="crescent"></ion-spinner>
-      <p>Buscando libros...</p>
+  @if (favoriteError) {
+    <p class="message error" role="alert">{{ favoriteError }}</p>
+  }
+
+  @if (!showFavoritesOnly && loading) {
+    <div class="state"><ion-spinner name="crescent"></ion-spinner><p>Consultando Open Library…</p></div>
+  }
+  @if (!showFavoritesOnly && !loading && error) {
+    <div class="state" role="alert">
+      <p>{{ error }}</p>
+      <ion-button (click)="searchBooks()">Reintentar búsqueda</ion-button>
+    </div>
+  }
+  @if (showFavoritesOnly && visibleBooks.length === 0) {
+    <div class="state"><p>No hay favoritos que coincidan con tu búsqueda.</p></div>
+  }
+  @if (!showFavoritesOnly && !loading && !error && !currentQuery) {
+    <div class="state"><p>Escribe algo para buscar libros.</p></div>
+  }
+  @if (!showFavoritesOnly && !loading && !error && currentQuery && books.length === 0) {
+    <div class="state"><p>No se encontraron libros. Prueba otra búsqueda.</p></div>
+  }
+
+  @if (!showFavoritesOnly && !loading && !error && books.length > 0) {
+    <p class="result-count">Resultados encontrados: {{ totalBooks }} · Mostrando {{ books.length }}</p>
+  }
+
+  <div class="book-grid">
+    @for (book of visibleBooks; track book.key) {
+      <ion-card class="book-card">
+        <div class="cover-wrap">
+          @if (book.cover_i) {
+            <img [src]="getCoverUrl(book)" [alt]="'Portada de ' + book.title" class="book-cover" loading="lazy" />
+          } @else {
+            <div class="no-cover">Sin portada</div>
+          }
+        </div>
+        <ion-card-header>
+          <ion-card-title>{{ book.title }}</ion-card-title>
+          <ion-card-subtitle>{{ book.author_name?.join(', ') || 'Autor no disponible' }}</ion-card-subtitle>
+        </ion-card-header>
+        <ion-card-content>
+          <ion-badge color="medium">Año: {{ book.first_publish_year || 'Sin dato' }}</ion-badge>
+          <div class="card-actions">
+            <ion-button size="small" (click)="openDetail(book)">Ver detalle</ion-button>
+            <ion-button size="small" fill="outline" (click)="toggleFavorite(book)" [attr.aria-label]="isFavorite(book.key) ? 'Quitar de favoritos' : 'Agregar a favoritos'">
+              {{ isFavorite(book.key) ? '★ Guardado' : '☆ Favorito' }}
+            </ion-button>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    }
+  </div>
+
+  @if (!showFavoritesOnly && !loading && !error && loadMoreError) {
+    <div class="state" role="alert">
+      <p>{{ loadMoreError }}</p>
+      <ion-button (click)="retryMore()" [disabled]="loadingMore">Reintentar esta página</ion-button>
     </div>
   }
 
-  @if (error) {
-    <ion-card>
-      <ion-card-content>
-        <p>{{ error }}</p>
-        <ion-button (click)="searchBooks()">Reintentar búsqueda</ion-button>
-      </ion-card-content>
-    </ion-card>
-  }
-
-  @if (!loading && !error && books.length === 0) {
-    <p>No se encontraron libros. Prueba otra búsqueda.</p>
-  }
-
-  @for (book of books; track book.key) {
-    <ion-card>
-      @if (book.cover_i) {
-        <img
-          [src]="getCoverUrl(book)"
-          [alt]="'Portada de ' + book.title"
-          class="book-cover"
-        />
-      }
-
-      <ion-card-header>
-        <ion-card-title>{{ book.title }}</ion-card-title>
-        <ion-card-subtitle>
-          Autor: {{ book.author_name?.join(', ') || 'No disponible' }}
-        </ion-card-subtitle>
-      </ion-card-header>
-
-      <ion-card-content>
-        Año de publicación:
-        {{ book.first_publish_year || 'No disponible' }}
-      </ion-card-content>
-    </ion-card>
-  }
-
-  @if (!loading && books.length > 0 && hasMore) {
-    <ion-infinite-scroll threshold="150px" (ionInfinite)="loadMore($event)">
-      <ion-infinite-scroll-content
-        loadingSpinner="crescent"
-        loadingText="Cargando más libros...">
-      </ion-infinite-scroll-content>
+  <!-- Existe solo cuando hay una búsqueda activa. Se deshabilita al terminar o al fallar. -->
+  @if (!showFavoritesOnly && !loading && !error && books.length > 0) {
+    <ion-infinite-scroll threshold="150px"
+      [disabled]="!hasMore || loadingMore || !!loadMoreError"
+      (ionInfinite)="loadMore($event)">
+      <ion-infinite-scroll-content loadingSpinner="crescent" loadingText="Cargando más libros…"></ion-infinite-scroll-content>
     </ion-infinite-scroll>
-  }
-
-  @if (!loading && books.length > 0 && !hasMore) {
-    <p class="ion-text-center">Has llegado al final de los resultados.</p>
+    @if (!hasMore) {
+      <p class="end-message">Has llegado al final de los resultados.</p>
+    }
   }
 </ion-content>

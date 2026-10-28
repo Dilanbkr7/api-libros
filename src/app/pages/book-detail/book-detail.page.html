@@ -1,13 +1,41 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>book-detail</ion-title>
+<ion-header>
+  <ion-toolbar color="primary">
+    <ion-buttons slot="start"><ion-back-button defaultHref="/home"></ion-back-button></ion-buttons>
+    <ion-title>Detalle del libro</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">book-detail</ion-title>
-    </ion-toolbar>
-  </ion-header>
+<ion-content class="ion-padding">
+  @if (loading) {
+    <div class="state"><ion-spinner name="crescent"></ion-spinner><p>Cargando detalle…</p></div>
+  }
+  @if (error) {
+    <div class="state" role="alert"><p>{{ error }}</p>
+      <ion-button (click)="loadDetail()">Reintentar</ion-button>
+      <ion-button fill="outline" (click)="goBack()">Volver al catálogo</ion-button>
+    </div>
+  }
+  @if (detail; as book) {
+    <ion-card class="detail-card">
+      @if (book.covers?.length) {
+        <img class="detail-cover" [src]="getCoverUrl()" [alt]="'Portada de ' + book.title" />
+      }
+      <ion-card-header><ion-card-title>{{ book.title }}</ion-card-title></ion-card-header>
+      <ion-card-content>
+        <p><strong>Identificador:</strong> {{ book.key }}</p>
+        <p><strong>Primera publicación:</strong> {{ book.first_publish_date || 'Sin información' }}</p>
+        <h2>Descripción</h2>
+        <p class="description">{{ description() }}</p>
+        <h2>Temas</h2>
+        <p>{{ book.subjects?.slice(0, 10)?.join(' · ') || 'Sin temas disponibles.' }}</p>
+        @if (favoriteError) { <p class="error" role="alert">{{ favoriteError }}</p> }
+        <div class="actions">
+          <ion-button (click)="toggleFavorite()">
+            {{ isFavorite() ? '★ Quitar favorito' : '☆ Agregar a favoritos' }}
+          </ion-button>
+          <ion-button fill="outline" (click)="goBack()">Volver</ion-button>
+        </div>
+      </ion-card-content>
+    </ion-card>
+  }
 </ion-content>

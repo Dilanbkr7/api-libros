@@ -1,0 +1,7 @@
+.state { text-align: center; padding: 42px 14px; }
+.detail-card { margin: 8px auto 24px; max-width: 720px; }
+.detail-cover { display: block; max-height: 350px; width: 100%; object-fit: contain; background: var(--ion-color-light); }
+.description { line-height: 1.6; white-space: pre-wrap; }
+h2 { font-weight: 700; font-size: 1.1rem; margin-top: 24px; }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 22px; }
+.error { color: var(--ion-color-danger); }

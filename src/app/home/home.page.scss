@@ -1,60 +1,18 @@
-#container {
-  text-align: center;
-
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
-}
-
-#container strong {
-  font-size: 20px;
-  line-height: 26px;
-}
-
-#container p {
-  font-size: 16px;
-  line-height: 22px;
-
-  color: #8c8c8c;
-
-  margin: 0;
-}
-
-#container a {
-  text-decoration: none;
-}
-
-h2 {
-  font-size: 24px;
-  font-weight: 700;
-  margin-bottom: 8px;
-}
-
-p {
-  color: var(--ion-color-medium);
-}
-
-ion-card {
-  margin: 16px 0;
-  border-radius: 12px;
-  overflow: hidden;
-}
-
-.book-cover {
-  display: block;
-  width: 100%;
-  max-height: 260px;
-  object-fit: contain;
-  background: #f4f4f4;
-}
-
-.loading {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 40px 0;
-  gap: 12px;
-}
+.intro { margin: 8px 0 12px; }
+.intro h1 { font-size: 1.6rem; font-weight: 700; margin: 0 0 4px; }
+.intro p, .result-count, .end-message { color: var(--ion-color-medium-shade); }
+.filters { display: flex; gap: 8px; flex-wrap: wrap; margin: 6px 0 12px; }
+.book-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; }
+.book-card { margin: 0; overflow: hidden; border-radius: 12px; }
+.cover-wrap { height: 205px; display: flex; align-items: center; justify-content: center; background: var(--ion-color-light); }
+.book-cover { display: block; height: 100%; width: 100%; object-fit: contain; }
+.no-cover { color: var(--ion-color-medium-shade); font-size: .9rem; }
+ion-card-title { font-size: 1.06rem; line-height: 1.35; }
+ion-card-subtitle { margin-top: 6px; min-height: 2.2em; }
+.card-actions { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 14px; }
+.state { text-align: center; padding: 32px 8px; }
+.state ion-spinner { margin-bottom: 10px; }
+.error { color: var(--ion-color-danger); }
+.message { padding: 10px; }
+.end-message { text-align: center; margin: 22px 0 36px; }
+@media (max-width: 520px) { .book-grid { grid-template-columns: 1fr; } .cover-wrap { height: 170px; } }
